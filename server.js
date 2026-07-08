@@ -8,6 +8,8 @@ const adapter = new FileSync(path.join('/tmp', 'db.json'));
 const db = low(adapter);
 db.defaults({ products: [], admin: {} }).write();
 
+app.use(express.static(path.join(__dirname)));
+
 // TENTUKAN PASSWORD KAMU DI SINI (Silakan ganti 'rahasia123' sesuai maumu)
 const PASSWORD_ADMIN = 'Cetulkerenbetz';
 
