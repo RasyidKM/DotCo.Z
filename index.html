@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekomendasi Produk Shopee</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="profile-img">SA</div>
+        
+        <h2>Racun Shopee Aku ✨</h2>
+        <p class="subtitle">Spill produk murah & berkualitas di sini!</p>
+
+        <div id="link-container">
+            <p>Memuat produk...</p>
+        </div>
+    </div>
+
+    <script>
+        async function loadLinks() {
+            const response = await fetch('/api/links');
+            const links = await response.json();
+            const container = document.getElementById('link-container');
+            
+            if (links.length === 0) {
+                container.innerHTML = '<p style="color:#999;">Belum ada produk yang ditambahkan.</p>';
+                return;
+            }
+
+            container.innerHTML = ''; // Kosongkan tulisan "Memuat..."
+            
+            // Loop data dari database dan jadikan tombol
+            links.forEach(link => {
+                const button = document.createElement('a');
+                button.href = link.url;
+                button.target = '_blank';
+                button.className = 'button-link';
+                // Format nomor otomatis: No. [nomor] - [Nama Produk]
+                button.innerHTML = `📦 No. ${link.number} - ${link.title}`;
+                container.appendChild(button);
+            });
+        }
+
+        // Jalankan fungsi di atas saat halaman dibuka
+        loadLinks();
+    </script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Login & Kelola Link</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: left;
+            margin-top: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: #ee4d2d;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #d73f22;
+        }
+        .admin-list {
+            margin-top: 30px;
+            text-align: left;
+        }
+        .admin-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn-delete {
+            background-color: #ff4d4d;
+            color: white;
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .btn-delete:hover {
+            background-color: #cc0000;
+        }
+        /* Sembunyikan konten utama admin sebelum login */
+        #admin-content {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Panel Admin Shopee Affiliate 🔑</h2>
+        
+        <div id="login-box">
+            <p class="subtitle">Masukkan password untuk masuk ke panel admin</p>
+            <form id="form-login" onsubmit="handleLogin(event)">
+                <label><b>Password Admin:</b></label>
+                <input type="password" id="input-password" placeholder="Masukkan password..." required>
+                <button type="submit">🔓 Masuk Kelola Data</button>
+            </form>
+        </div>
+
+        <div id="admin-content">
+            <p class="subtitle">Tambah atau hapus produk dari daftarmu</p>
+
+            <form action="/api/links" method="POST">
+                <label><b>Nama/Judul Produk:</b></label>
+                <input type="text" name="title" placeholder="Contoh: Kipas Angin Portable Mini" required>
+
+                <label><b>Link Shopee Affiliate:</b></label>
+                <input type="url" name="url" placeholder="Contoh: https://shope.ee/..." required>
+
+                <button type="submit">🚀 Tambahkan Produk</button>
+            </form>
+
+            <div class="admin-list">
+                <h3>Daftar Produk Saat Ini:</h3>
+                <div id="admin-links-container">
+                    <p>Memuat daftar...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cek apakah admin sudah login sebelumnya di sesi ini
+        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            tampilkanHalamanAdmin();
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const password = document.getElementById('input-password').value;
+
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: password })
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                // Simpan status login di browser biar kalau di-refresh gak minta login lagi
+                sessionStorage.setItem('isLoggedIn', 'true');
+                tampilkanHalamanAdmin();
+            } else {
+                alert(data.message);
+            }
+        }
+
+        function tampilkanHalamanAdmin() {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('admin-content').style.display = 'block';
+            loadAdminLinks();
+        }
+
+        async function loadAdminLinks() {
+            const response = await fetch('/api/links');
+            const links = await response.json();
+            const container = document.getElementById('admin-links-container');
+            
+            if (links.length === 0) {
+                container.innerHTML = '<p style="color:#999;">Belum ada produk.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            links.forEach(link => {
+                const div = document.createElement('div');
+                div.className = 'admin-item';
+                div.innerHTML = `
+                    <div>
+                        <strong>No. ${link.number}</strong> - ${link.title}
+                    </div>
+                    <a href="/api/links/delete/${link.id}" class="btn-delete" onclick="return confirm('Yakin mau hapus produk ini?')">Hapus</a>
+                `;
+                container.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
