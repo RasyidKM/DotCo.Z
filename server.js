@@ -12,6 +12,9 @@ app.use(express.static(path.join(__dirname)));
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
 
 // TENTUKAN PASSWORD KAMU DI SINI (Silakan ganti 'rahasia123' sesuai maumu)
 const PASSWORD_ADMIN = 'Cetulkerenbetz';
