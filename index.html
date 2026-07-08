@@ -5,6 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekomendasi Produk Shopee</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Trik agar produk otomatis tersusun berurutan ke bawah */
+        #link-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* Jarak antar kotak produk agar tidak menempel */
+            width: 100%;
+            max-width: 450px; /* Batas lebar maksimal kotak agar pas di HP/Laptop */
+            margin: 20px auto 0 auto;
+        }
+
+        /* Mengubah link menjadi kotak persegi panjang warna oranye */
+        .button-link {
+            background-color: #EE4D2D; /* Warna Oranye khas Shopee */
+            color: white !important; /* Warna tulisan di dalam kotak jadi putih */
+            text-decoration: none; /* Menghilangkan garis bawah pada link */
+            padding: 14px 20px; /* Mengatur tinggi dan lebar dalam kotak (persegi panjang) */
+            border-radius: 8px; /* Membuat sudut kotak sedikit melengkung biar estetik */
+            font-weight: bold;
+            font-size: 15px;
+            display: block; /* Memaksa kotak mengambil lebar penuh */
+            text-align: left; /* Tulisan produk rata kiri */
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08); /* Efek bayangan halus */
+        }
+
+        /* Efek sedikit menggelap & membesar saat tombol disentuh/diklik */
+        .button-link:hover {
+            background-color: #d73c1d;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body>
 
@@ -26,7 +58,7 @@
             const container = document.getElementById('link-container');
             
             if (links.length === 0) {
-                container.innerHTML = '<p style="color:#999;">Belum ada produk yang ditambahkan.</p>';
+                container.innerHTML = '<p style="color:#999; text-align:center;">Belum ada produk yang ditambahkan.</p>';
                 return;
             }
 
