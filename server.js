@@ -1,10 +1,12 @@
 const express = require('express');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+const path = require('path');
 
 const app = express();
-const adapter = new FileSync(path.join('/tmp', 'db.json));
+const adapter = new FileSync(path.join('/tmp', 'db.json'));
 const db = low(adapter);
+db.defaults({ products: [], admin: {} }).write();
 
 // TENTUKAN PASSWORD KAMU DI SINI (Silakan ganti 'rahasia123' sesuai maumu)
 const PASSWORD_ADMIN = 'Cetulkerenbetz';
