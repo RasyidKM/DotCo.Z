@@ -3,7 +3,7 @@ const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
 
 const app = express();
-const adapter = new FileSync('db.json');
+const adapter = new FileSync(path.join('/tmp', 'db.json));
 const db = low(adapter);
 
 // TENTUKAN PASSWORD KAMU DI SINI (Silakan ganti 'rahasia123' sesuai maumu)
