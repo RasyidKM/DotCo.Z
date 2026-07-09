@@ -81,7 +81,7 @@
     <script>
         const SUPABASE_URL = "https://fggigxprntyrgxwjgmvt.supabase.co";
         const SUPABASE_KEY = "sb_publishable_9Yu_nCCwjynj0KkyztmqKw_DVW5qBxx";
-        supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function lacakPengunjung() {
             try {
@@ -120,5 +120,46 @@
             lacakPengunjung();
         });
     </script>
+    <!-- SCRIPT PELACAK OTOMATIS DOTCO.Z MONITOR -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  (async function() {
+    // 1. KONEKSI KE SUPABASE
+    const SUPABASE_URL = "https://fggigxprntyrgxwjgmvt.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_9Yu_nCCwjynj0KkyztmqKw_DVW5qBxx";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // 2. SET NAMA WEB (Harus sama persis dengan yang di kolom nama_web Supabase)
+    const NAMA_WEB_INI = "DotCo.Z Affiliate"; 
+
+    // 3. DETEKSI HARI INI
+    const daftarHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    const hariIni = daftarHari[new Date().getDay()];
+
+    try {
+      // 4. AMBIL DATA PENGUNJUNG SEKARANG
+      const { data, error } = await supabaseClient
+        .from('analytics')
+        .select('*')
+        .eq('nama_web', NAMA_WEB_INI)
+        .eq('hari', hariIni);
+
+      if (!error && data && data.length > 0) {
+        const angkaSekarang = data[0].jumlah_pengunjung;
+        
+        // 5. TAMBAH +1 DAN UPDATE KE DATABASE
+        await supabaseClient
+          .from('analytics')
+          .update({ jumlah_pengunjung: angkaSekarang + 1 })
+          .eq('id', data[0].id);
+          
+        console.log("⚡ DotCo.Z Monitor: Berhasil mencatat 1 pengunjung hari " + hariIni);
+      }
+    } catch (err) {
+      console.error("Gagal mengirim data tracking:", err);
+    }
+  })();
+</script>
+
 </body>
 </html>
