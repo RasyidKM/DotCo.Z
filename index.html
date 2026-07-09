@@ -3,163 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekomendasi Produk Shopee</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* Trik agar produk otomatis tersusun berurutan ke bawah */
-        #link-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px; /* Jarak antar kotak produk agar tidak menempel */
-            width: 100%;
-            max-width: 450px; /* Batas lebar maksimal kotak agar pas di HP/Laptop */
-            margin: 20px auto 0 auto;
-        }
-
-        /* Mengubah link menjadi kotak persegi panjang warna oranye */
-        .button-link {
-            background-color: #EE4D2D; /* Warna Oranye khas Shopee */
-            color: white !important; /* Warna tulisan di dalam kotak jadi putih */
-            text-decoration: none; /* Menghilangkan garis bawah pada link */
-            padding: 14px 20px; /* Mengatur tinggi dan lebar dalam kotak */
-            border-radius: 8px; /* Membuat sudut kotak sedikit melengkung biar estetik */
-            font-weight: bold;
-            font-size: 15px;
-            display: block; /* Memaksa kotak mengambil lebar penuh */
-            text-align: left; /* Tulisan produk rata kiri */
-            transition: transform 0.2s, background-color 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08); /* Efek bayangan halus */
-        }
-
-        /* Efek sedikit menggelap & membesar saat tombol disentuh/diklik */
-        .button-link:hover {
-            background-color: #d73c1d;
-            transform: translateY(-2px);
-        }
-    </style>
+    <title>DotCo.Z - Shopee Affiliate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 font-sans">
 
-    <div class="container">
-        <div class="profile-img">SA</div>
+    <div class="max-w-xl mx-auto min-h-screen flex flex-col justify-center items-center p-6 text-center space-y-6">
+        <div class="space-y-2">
+            <h1 class="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
+                DotCo.Z Affiliate 🛒
+            </h1>
+            <p class="text-slate-400 text-sm">Rekomendasi Produk Terbaik Shopee Khusus Untukmu</p>
+        </div>
         
-        <h2>DotCo.Z Affiliate</h2>
-        <p class="subtitle">Spill produk murah & berkualitas di sini!</p>
-
-        <div id="link-container">
-            <p>Memuat produk...</p>
+        <div class="w-full bg-slate-800/50 border border-slate-700/50 p-4 rounded-2xl text-xs text-slate-400 leading-relaxed">
+            Situs ini terhubung langsung dengan sistem pelacakan database rill Supabase. Setiap kunjungan akan tercatat otomatis di dashboard monitor tim.
         </div>
     </div>
 
-    <!-- 1. SCRIPT UNTUK AMBIL PRODUK (TOMBOL ORANYE) -->
     <script>
-        async function loadLinks() {
-            const response = await fetch('/api/links');
-            const links = await response.json();
-            const container = document.getElementById('link-container');
-            
-            if (links.length === 0) {
-                container.innerHTML = '<p style="color:#999; text-align:center;">Belum ada produk yang ditambahkan.</p>';
-                return;
-            }
-
-            container.innerHTML = ''; // Kosongkan tulisan "Memuat..."
-            
-            links.forEach(link => {
-                const button = document.createElement('a');
-                button.href = link.url;
-                button.target = '_blank';
-                button.className = 'button-link';
-                button.innerHTML = `📦 No. ${link.number} - ${link.title}`;
-                container.appendChild(button);
-            });
-        }
-    </script>
-
-    <!-- 2. SCRIPT SUPABASE & PELACAK GRAFIK JALUR AMAN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
+        // 1. INISIALISASI KONEKSI SUPABASE
         const SUPABASE_URL = "https://fggigxprntyrgxwjgmvt.supabase.co";
         const SUPABASE_KEY = "sb_publishable_9Yu_nCCwjynj0KkyztmqKw_DVW5qBxx";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function lacakPengunjung() {
+        // 2. SCRIPT PELACAK PENGUNJUNG OTOMATIS
+        (async function lacakPengunjung() {
+            const NAMA_WEB_INI = "DotCo.Z Affiliate"; 
+            const daftarHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const hariIni = daftarHari[new Date().getDay()];
+
             try {
-                const daftarHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-                const hariIni = daftarHari[new Date().getDay()];
-
-                console.log("Mencoba mencatat pengunjung untuk hari:", hariIni);
-
-                const { data, error } = await supabase
+                // Ambil data pengunjung hari ini berdasarkan nama web
+                const { data, error } = await supabaseClient
                     .from('analytics')
-                    .select('id, jumlah_pengunjung')
-                    .eq('hari', hariIni)
-                    .single();
+                    .select('*')
+                    .eq('nama_web', NAMA_WEB_INI)
+                    .eq('hari', hariIni);
 
-                if (data) {
-                    const jumlahBaru = data.jumlah_pengunjung + 1;
-                    await supabase
+                if (!error && data && data.length > 0) {
+                    const angkaSekarang = data[0].jumlah_pengunjung;
+                    
+                    // Update jumlah pengunjung +1 ke database
+                    await supabaseClient
                         .from('analytics')
-                        .update({ jumlah_pengunjung: jumlahBaru })
-                        .eq('id', data.id);
-                    console.log("Berhasil! Pengunjung hari ini bertambah menjadi:", jumlahBaru);
-                } else {
-                    await supabase
-                        .from('analytics')
-                        .insert([{ hari: hariIni, jumlah_pengunjung: 1 }]);
-                    console.log("Berhasil membuat baris baru untuk hari:", hariIni);
+                        .update({ jumlah_pengunjung: angkaSekarang + 1 })
+                        .eq('id', data[0].id);
+                        
+                    console.log("⚡ DotCo.Z Monitor: Berhasil mencatat 1 pengunjung hari " + hariIni);
                 }
             } catch (err) {
-                console.error("Gagal mencatat pengunjung:", err);
+                console.error("Gagal mengirim data tracking:", err);
             }
-        }
-
-        // Pemicu otomatis jalan berurutan tanpa tabrakan
-        window.addEventListener('DOMContentLoaded', () => {
-            loadLinks();
-            lacakPengunjung();
-        });
+        })();
     </script>
-    <!-- SCRIPT PELACAK OTOMATIS DOTCO.Z MONITOR -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  (async function() {
-    // 1. KONEKSI KE SUPABASE
-    const SUPABASE_URL = "https://fggigxprntyrgxwjgmvt.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_9Yu_nCCwjynj0KkyztmqKw_DVW5qBxx";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    
-    // 2. SET NAMA WEB (Harus sama persis dengan yang di kolom nama_web Supabase)
-    const NAMA_WEB_INI = "DotCo.Z Affiliate"; 
-
-    // 3. DETEKSI HARI INI
-    const daftarHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-    const hariIni = daftarHari[new Date().getDay()];
-
-    try {
-      // 4. AMBIL DATA PENGUNJUNG SEKARANG
-      const { data, error } = await supabaseClient
-        .from('analytics')
-        .select('*')
-        .eq('nama_web', NAMA_WEB_INI)
-        .eq('hari', hariIni);
-
-      if (!error && data && data.length > 0) {
-        const angkaSekarang = data[0].jumlah_pengunjung;
-        
-        // 5. TAMBAH +1 DAN UPDATE KE DATABASE
-        await supabaseClient
-          .from('analytics')
-          .update({ jumlah_pengunjung: angkaSekarang + 1 })
-          .eq('id', data[0].id);
-          
-        console.log("⚡ DotCo.Z Monitor: Berhasil mencatat 1 pengunjung hari " + hariIni);
-      }
-    } catch (err) {
-      console.error("Gagal mengirim data tracking:", err);
-    }
-  })();
-</script>
-
 </body>
 </html>
