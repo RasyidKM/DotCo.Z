@@ -21,7 +21,7 @@
             background-color: #EE4D2D; /* Warna Oranye khas Shopee */
             color: white !important; /* Warna tulisan di dalam kotak jadi putih */
             text-decoration: none; /* Menghilangkan garis bawah pada link */
-            padding: 14px 20px; /* Mengatur tinggi dan lebar dalam kotak (persegi panjang) */
+            padding: 14px 20px; /* Mengatur tinggi dan lebar dalam kotak */
             border-radius: 8px; /* Membuat sudut kotak sedikit melengkung biar estetik */
             font-weight: bold;
             font-size: 15px;
@@ -51,6 +51,7 @@
         </div>
     </div>
 
+    <!-- 1. SCRIPT UNTUK AMBIL PRODUK (TOMBOL ORANYE) -->
     <script>
         async function loadLinks() {
             const response = await fetch('/api/links');
@@ -64,20 +65,60 @@
 
             container.innerHTML = ''; // Kosongkan tulisan "Memuat..."
             
-            // Loop data dari database dan jadikan tombol
             links.forEach(link => {
                 const button = document.createElement('a');
                 button.href = link.url;
                 button.target = '_blank';
                 button.className = 'button-link';
-                // Format nomor otomatis: No. [nomor] - [Nama Produk]
                 button.innerHTML = `📦 No. ${link.number} - ${link.title}`;
                 container.appendChild(button);
             });
         }
+    </script>
 
-        // Jalankan fungsi di atas saat halaman dibuka
-        loadLinks();
+    <!-- 2. SCRIPT SUPABASE & PELACAK GRAFIK JALUR AMAN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://fggigxprntyrgxwjgmvt.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_9Yu_nCCwjynj0KkyztmqKw_DVW5qBxx";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function lacakPengunjung() {
+            try {
+                const daftarHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+                const hariIni = daftarHari[new Date().getDay()];
+
+                console.log("Mencoba mencatat pengunjung untuk hari:", hariIni);
+
+                const { data, error } = await supabase
+                    .from('analytics')
+                    .select('id, jumlah_pengunjung')
+                    .eq('hari', hariIni)
+                    .single();
+
+                if (data) {
+                    const jumlahBaru = data.jumlah_pengunjung + 1;
+                    await supabase
+                        .from('analytics')
+                        .update({ jumlah_pengunjung: jumlahBaru })
+                        .eq('id', data.id);
+                    console.log("Berhasil! Pengunjung hari ini bertambah menjadi:", jumlahBaru);
+                } else {
+                    await supabase
+                        .from('analytics')
+                        .insert([{ hari: hariIni, jumlah_pengunjung: 1 }]);
+                    console.log("Berhasil membuat baris baru untuk hari:", hariIni);
+                }
+            } catch (err) {
+                console.error("Gagal mencatat pengunjung:", err);
+            }
+        }
+
+        // Pemicu otomatis jalan berurutan tanpa tabrakan
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLinks();
+            lacakPengunjung();
+        });
     </script>
 </body>
 </html>
